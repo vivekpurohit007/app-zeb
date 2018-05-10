@@ -21,7 +21,7 @@ TicTacToeBoard::TicTacToeBoard() {
     /* init all to 0 */
     for (int r = 0; r < DEGREE; r++) {
         for (int c = 0; c < DEGREE; c++) {
-            this->board[r][c] = INVALID ;
+            this->board[r][c] = EMPTY ;
         }
     }
 }
@@ -104,53 +104,28 @@ void TicTacToeBoard::ResetMove(Move *move) {
     }
 
     /* clear the position */
-    this->board[row][col] = INVALID;
+    this->board[row][col] = EMPTY;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-int TicTacToeBoard::evaluateDir(int row, int col, Direction dir) {
-    //cout << "(" << row << "," << col << "), " << dir;
-
-    if (this->board[row][col] == INVALID) {
-        //cout << ": EMPTY FIELDS" << endl;
-        return 0;
-    }
-
-    int SL = 1; /* sequence lenght */
-    int mark = this->board[row][col];
-
-    /* check three boxes */
-    /* the (row,col) of the boxes to be checked are found using the switch case */
-    /* check three boxes for same Player symbol */
-    for (int i = 1; i <= 3; i++) {
-        switch (dir) {
-            case S:
-                row++;
-                break;
-            case SE:
-                row++; col++;
-                break;
-            case E:
-                col++;
-                break;
-            case SW:
-                row++; col--;
-                break;
-            default:
-                cout << __func__ << ": Error: Invalid direction" << endl;    
-        }
-
-        if (mark == this->board[row][col]) {
-            SL++;
-        } else {
-            break;
-        }
-    }
-
-    //cout << ": " << SL << endl;
-
-    return SL;
-}
+#define CHECK_BOARD_STATE(cell, isempty, value, seqlen, state) { \
+    if (cell == EMPTY)                          \
+        isempty = true;                         \
+                                                \
+    if (value == cell) {                        \
+        seqlen++;                               \
+    } else {                                    \
+        value = cell;                           \
+        seqlen = 1;                             \
+    }                                           \
+    if (!isempty && seqlen == DEGREE) {         \
+        return (int)RESULT;                     \
+    } else {                                    \
+        if (isempty) {                          \
+            state = PLAY;                       \
+        }                                       \
+    }                                           \
+}     
 
 /**
  * Evaluates the board for DRAW/WIN/etc
@@ -164,35 +139,52 @@ int TicTacToeBoard::evaluateDir(int row, int col, Direction dir) {
  * +---
  */
 int TicTacToeBoard::Evaluate() {
-    if (DEGREE == this->evaluateDir(0, 0, S)) {
-        cout << "'" << (char)this->board[0][0] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(0, 0, SE)) {
-        cout << "'" << (char)this->board[0][0] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(0, 0, E)) {
-        cout << "'" << (char)this->board[0][0] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(0, 1, S)) {
-        cout << "'" << (char)this->board[0][1] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(0, 2, SW)) {
-        cout << "'" << (char)this->board[0][2] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(0, 2, S)) {
-        cout << "'" << (char)this->board[0][2] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(1, 0, E)) {
-        cout << "'" << (char)this->board[1][0] << "' WON" << endl;
-    } else
-    if (DEGREE == this->evaluateDir(2, 2, S)) {
-        cout << "'" << (char)this->board[2][2] << "' WON" << endl;
-    } else {
-        return 0; /* no result yet */
-        /* TODO: check whether the game would proceed to a draw */
+    enum State gamestate = DRAW;
+    bool cellempty;
+    int SL;
+    int mark;
+
+    /* check rows */
+    for (int r = 0; r < DEGREE; r++) {
+        SL = 0;
+        mark = EMPTY;
+        cellempty = false;
+
+        for (int c = 0; c < DEGREE; c++) {
+            CHECK_BOARD_STATE(this->board[r][c], cellempty, mark, SL, gamestate);
+        }
     }
 
-    return 1;
+    /* check columns */
+    for (int c = 0; c < DEGREE; c ++) {
+        SL = 0;
+        mark = EMPTY;
+        cellempty = false;
+
+        for (int r = 0; r < DEGREE; r++) {
+            CHECK_BOARD_STATE(this->board[r][c], cellempty, mark, SL, gamestate);
+        }
+    }
+
+    /* upper-left to lower-right diagonal */
+    SL = 0;
+    mark = EMPTY;
+    cellempty = false;
+
+    for (int i = 0; i < DEGREE; i++) {
+        CHECK_BOARD_STATE(this->board[i][DEGREE-i-1], cellempty, mark, SL, gamestate);
+    }
+
+    /* upper-right to lower-left diagonal */
+    SL = 0;
+    mark = EMPTY;
+    cellempty = false;
+
+    for (int i = 0; i < DEGREE; i++) {
+        CHECK_BOARD_STATE(this->board[i][i], cellempty, mark, SL, gamestate);
+    }
+
+    return (int)gamestate;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 

@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <cstdlib>
 
 #include "game.h"
 #include "move.h"
@@ -25,7 +26,7 @@ TicTacToeGame::TicTacToeGame() {
     this->playerCount = MAX_PLAYERS;
 
     /* init the players */
-    this->players = new Player[2];
+    this->players = new Player[MAX_PLAYERS];
 
     (this->players+0)->setType(PLAYER_HUMAN);
     (this->players+0)->setSymbol(PLAYER_CROSS);
@@ -35,6 +36,8 @@ TicTacToeGame::TicTacToeGame() {
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 void TicTacToeGame::Display() const {
+    (void)system("clear");
+
     cout << "++++++ T I C T A C T O E ++++++" << endl
          << endl
          << "++++++     Board State   ++++++" << endl;
@@ -48,11 +51,12 @@ void TicTacToeGame::Display() const {
 
 void TicTacToeGame::Play() {
     int turn = 0; /* first player to make first move */
+    enum State gamestate = PLAY;
 
     this->Display();
 
     /* loop for 9 possible positions */
-    for (int i = 1; i < 9; i++ ) {
+    while (gamestate == PLAY) {
         cout << "+++++++++++++++++++++++++++++++" << endl;
         cout << "Turn: Player " << (turn+1) << endl;
         cout << "+++++++++++++++++++++++++++++++" << endl;
@@ -77,14 +81,18 @@ again:
 
         this->Display();
 
-        turn = (turn+1)%2;
-
         /* evaluate the board for result */
-        if (this->arena->Evaluate()) {
-            cout << "GAME END: Player " << turn << " WON." << endl;
+        gamestate = (enum State) this->arena->Evaluate();
+        cout << "State = " << gamestate << endl;
 
-            return;
+        if (RESULT == gamestate) {
+            cout << "GAME END: Player " << (turn+1) << " WON." << endl;
+        } else
+        if (DRAW == gamestate) {
+            cout << "GAME ended in a DRAW." << endl;
         }
+
+        turn = (turn+1)%2;
     }
 }
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/

@@ -25,11 +25,6 @@ class TicTacToeBoard : virtual public Arena {
     private:
         int board[DEGREE][DEGREE]; /* a 3x3 board */
 
-        /**
-         * Start evaluation from @row @col along @dir
-         */
-        int evaluateDir(int row, int col, Direction dir);
-
     public:
         TicTacToeBoard();
 

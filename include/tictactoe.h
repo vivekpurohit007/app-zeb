@@ -12,7 +12,14 @@
 #define __TICTACTOE_H
 
 namespace tictactoe {
-    const int INVALID = 0;
+    /**
+     * Cell is empty
+     */
+    const int EMPTY = 0;
+
+    /**
+     * Board dimensions 3x3
+     */
     const int DEGREE = 3;
 
     /**
@@ -41,7 +48,8 @@ namespace tictactoe {
 
     enum State {
         DRAW,   /* game is a draw */
-        END     /* a player won */
+        PLAY,   /* continue play; a result could be produced */
+        RESULT  /* a player can win */
     };
 
     enum Direction {
