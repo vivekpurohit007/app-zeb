@@ -44,9 +44,22 @@ class Game {
             return 1;
         }
 
+        /**
+         * @func isSolvable()
+         * @brief Checks whether the game would finally produce a Winner or not
+         * 
+         * Simulates moves and evaluates whether the resulting game produces a RESULT or ends in a DRAW.
+         * 
+         * @returns true if game could produce a winner
+         *          false if the game would end in a draw
+         */
+        virtual bool IsSolvable() {
+            return true;
+        }
+
         void Display() const {};
         
-        ~Game(){}
+        virtual ~Game(){}
 };
 
 #endif // __GAME_H

@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
 #include "game.h"
@@ -87,6 +88,8 @@ again:
 
         if (RESULT == gamestate) {
             cout << "GAME END: Player " << (turn+1) << " WON." << endl;
+
+            //this->arena->isSolvable();
         } else
         if (DRAW == gamestate) {
             cout << "GAME ended in a DRAW." << endl;
@@ -97,6 +100,12 @@ again:
 }
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+/**
+ * @param isempty an empty cell found
+ * @param value cell value
+ * @param seqlen consecutive cells with same value
+ * @param state the game state
+ */
 #define CHECK_BOARD_STATE(cell, isempty, value, seqlen, state) { \
     if (cell == EMPTY)                          \
         isempty = true;                         \
@@ -177,7 +186,149 @@ int TicTacToeGame::Evaluate() {
     return (int)gamestate;
 }
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+bool TicTacToeGame::IsSolvable() {
+    TicTacToeBoard *board = dynamic_cast<TicTacToeBoard*>(this->arena);
+    bool terminal = false;
 
+#if 0
+    Move move;
+
+    /*
+     * X O X
+     * X O O
+     * O X _
+     */
+    move.set(0,0);  board->MakeMove(&move, (this->players+0));
+    move.set(0,1);  board->MakeMove(&move, (this->players+1));
+    move.set(0,2);  board->MakeMove(&move, (this->players+0));
+    move.set(1,0);  board->MakeMove(&move, (this->players+0));
+    move.set(1,1);  board->MakeMove(&move, (this->players+1));
+    move.set(1,2);  board->MakeMove(&move, (this->players+1));
+    move.set(2,0);  board->MakeMove(&move, (this->players+1));
+    move.set(2,1);  board->MakeMove(&move, (this->players+0));
+
+    terminal = this->issolvable(board, 4, 1);
+#else
+
+    terminal = this->issolvable(board, board->getCellsRemaining(), 0);
+#endif
+
+    if (terminal) {
+        cout << "@@@ Game can End @@@" << endl;
+    } else {
+        cout << "### Game ends in Draw ###" << endl;
+    }
+
+    return true;
+}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+static int total_moves = 0;
+
+bool TicTacToeGame::issolvable(TicTacToeBoard *board, int depth, int turn) {
+    if (!depth)
+        return 0;
+
+#ifdef DEBUG
+    printf ("\n%s: start", __func__);
+    printf ("\n%s: depth=%d, turn=%d", __func__, depth, turn);
+#endif
+	bool solved = false;
+    int status = PLAY;
+    Move move;
+
+    /* list moves from the current cell */
+    //list<Move> moves = ListMovesFromCell(board, start);
+    list<Move> moves = board->ListMoves();
+
+#ifdef DEBUG
+    printf ("\n%s: moves list size=%ld", __func__, moves.size());
+#endif
+    /* loop over all moves */
+    list<Move>::iterator it;
+
+    for (it = moves.begin(); it != moves.end(); ++it) {
+	    /* make move */
+        move.setRow(it->getRow());
+        move.setCol(it->getCol());
+
+        if (!board->MakeMove(&move, (this->players+turn))) {
+            total_moves++;
+#ifdef DEBUG
+            printf ("\n%s: [[%d]] processing move(%d,%d) at depth=%d", __func__,
+			        total_moves, it->getRow(), it->getCol(), depth);
+#endif
+
+            /* evaluate whether this moves leads to a result/draw */
+            status = this->Evaluate();
+#ifdef DEBUG
+            printf ("\n%s: evaluation status=%d.", __func__, status);
+#endif
+            /* proceed as per the evaluation result */
+            switch (status) {
+                case RESULT:
+#ifdef DEBUG
+                    printf ("\n%s: [%c] Won.", __func__, (this->players+turn)->getSymbol());
+#endif
+                    if (status == RESULT) {
+#ifdef DEBUG
+                        printf ("\n%s: [[%d]] Move (%d,%d) can produce RESULT.",
+                        __func__, total_moves, it->getRow(), it->getCol());
+#endif
+                        solved = true;
+                    }
+
+                    break;
+
+                case PLAY:
+#ifdef DEBUG
+                    printf ("\n%s: Continue...", __func__);
+#endif
+                    break;
+
+				case DRAW:
+#ifdef DEBUG
+                    printf ("\n%s: It's a DRAW", __func__);
+#endif
+                    break;
+            }
+
+            /* if board produces result */
+            if (solved) {
+                /* display */
+                board->Display();
+
+                /* reset move */
+                board->ResetMove(it->getRow(), it->getCol());
+
+                return true;
+            }
+
+#ifdef DEBUG
+            printf ("\n%s: going to depth (%d).", __func__, depth-1);
+#endif
+
+            /* process */
+            solved = this->issolvable(board, depth-1, !turn);
+
+            /* reset move */
+            board->ResetMove(it->getRow(), it->getCol());
+
+            if (solved)
+                return solved;
+        }
+
+        /* reset move */
+        board->ResetMove(it->getRow(), it->getCol());
+    }
+
+#ifdef DEBUG
+    printf ("\n%s: end", __func__);
+#endif
+
+    return solved;
+}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 TicTacToeGame::~TicTacToeGame() {
     if (this->players) {

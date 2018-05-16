@@ -14,6 +14,10 @@
 #ifndef __ARENA_H
 #define __ARENA_H
 
+#include <list>
+
+using namespace std;
+
 class Move;
 class Player;
 
@@ -32,6 +36,13 @@ class Arena {
         virtual void Display() const = 0;
 
         /**
+         * @func listmoves
+         * @brief Generates a list of the possible moves on the board
+         * @return list of moves
+         */
+        virtual list<Move> ListMoves() const = 0;
+
+        /**
          * @func MakeMove
          * @brief Makes a move on the game
          */
@@ -42,6 +53,14 @@ class Arena {
          * @brief Clears a previously made move
          */
         virtual void ResetMove(Move *move) = 0;
+
+        /**
+         * @func ResetMove
+         * @brief Clears a previously made move
+         * @param row the position row
+         * @param col the postition col
+         */
+        virtual void ResetMove(int row, int col) = 0;
 
         virtual ~Arena() = 0;
 };

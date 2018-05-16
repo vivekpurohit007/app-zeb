@@ -10,7 +10,13 @@ int main(int argc, char *argv[])
     ttt = new TicTacToeGame();
     
     /* game play */
-    ttt->Play();
+    //ttt->Play();
+    // test
+    if (ttt->IsSolvable()) {
+        cout << "Game produces a result." << endl;
+    } else {
+        cout << "Will produce a draw" << endl;
+    }
 
     delete ttt;
 

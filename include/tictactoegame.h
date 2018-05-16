@@ -13,6 +13,8 @@
 
 #include "game.h"
 
+class TicTacToeBoard;
+
 /**
  * @brief The TicTacToe class
  */
@@ -24,10 +26,9 @@ class TicTacToeGame : virtual public Game {
          * @brief worker function that finds whether the board is solvable or not
          * @param depth the depth to check for
          * @praram turn current player
-         * @param start the starting move
          * @return true if a result could be found, else false
          */
-        bool issolvable(Arena *board, int depth, int turn, Move start);
+        bool issolvable(TicTacToeBoard *board, int depth, int turn);
 
     public:
         TicTacToeGame();
@@ -40,6 +41,8 @@ class TicTacToeGame : virtual public Game {
         void Display() const;
 
         int Evaluate();
+
+        bool IsSolvable();
 
         ~TicTacToeGame();
 };

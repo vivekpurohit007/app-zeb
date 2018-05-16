@@ -23,6 +23,11 @@ namespace tictactoe {
     const int DEGREE = 3;
 
     /**
+     * Board has 9 cells
+     */
+    const int MAX_CELLS = 9;
+
+    /**
      * Only two players can play TicTacToe at one time
      */
     const int MAX_PLAYERS = 2;

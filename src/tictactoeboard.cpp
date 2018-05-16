@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <cstdio>
 
 #include "move.h"
 #include "player.h"
@@ -24,6 +25,8 @@ TicTacToeBoard::TicTacToeBoard() {
             this->board[r][c] = EMPTY ;
         }
     }
+
+    this->cellsRemaining = MAX_CELLS;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
@@ -36,6 +39,11 @@ PlayerSymbol TicTacToeBoard::getValueAt(int row, int col) const {
 
     return (PlayerSymbol)this->board[row][col];
 
+}
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+int TicTacToeBoard::getCellsRemaining() const {
+    return this->cellsRemaining;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
@@ -67,6 +75,8 @@ int TicTacToeBoard::MakeMove(Move *move, Player *player) {
     /* set player new position */
     this->board[row][col] = player->getSymbol();
 
+    this->cellsRemaining--;
+
     return 0;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -96,11 +106,97 @@ void TicTacToeBoard::ResetMove(int row, int col) {
 
     /* clear the position */
     this->board[row][col] = EMPTY;
+
+    this->cellsRemaining++;
+}
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+list<Move> TicTacToeBoard::ListMoves() const {
+	list<Move> moves;
+	Move move;
+
+#ifdef DEBUG
+	printf ("\n%s: Moves: ", __func__);
+#endif
+
+	for (int r = 0; r < DEGREE; r++) {
+		for (int c = 0; c < DEGREE; c++) {
+			if (this->board[r][c] == EMPTY) {
+				move.setRow(r); move.setCol(c);
+#ifdef DEBUG
+				printf ("(%d, %d) ", move.getRow(), move.getCol());
+#endif
+				moves.push_back(move);
+			}
+		}
+	}
+
+	return moves;
+}
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+list<Move> TicTacToeBoard::ListMoves(Move start) const {
+	list<Move> moves; //= new list<int[2]>;
+	Move move;
+	int row = start.getRow();
+	int col = start.getCol();
+
+	/*
+	 * NW  N  NE
+	 * W   *   E
+	 * SW  S  SE
+	 */
+	/* push all row, col pairs */
+    moves.push_back(start);
+
+	move.setRow(row-1); move.setCol(col-1);	moves.push_back(move); /* North West */
+	move.setRow(row-1); move.setCol(col);	moves.push_back(move); /* North */
+	move.setRow(row-1); move.setCol(col+1);	moves.push_back(move); /* North East */
+	move.setRow(row);   move.setCol(col+1);	moves.push_back(move); /* East */
+    move.setRow(row+1); move.setCol(col+1);	moves.push_back(move); /* South East */
+	move.setRow(row+1); move.setCol(col);	moves.push_back(move); /* South */
+	move.setRow(row+1); move.setCol(col-1);	moves.push_back(move); /* South West */
+	move.setRow(row);   move.setCol(col-1);	moves.push_back(move); /* West */
+
+	list<Move>::iterator it = moves.begin();
+
+#ifdef DEBUG
+	printf ("\n%s: Moves from (%d,%d)", __func__, start.getRow(), start.getCol());
+
+	printf ("\n%s: Moves: ", __func__);
+	for (it = moves.begin(); it != moves.end(); it++) {
+		printf ("(%d, %d) ", it->getRow(), it->getCol());
+	}
+
+	printf ("\n%s: Legal: ", __func__);
+#endif
+
+	/* remove moves that already contain vales */
+	/* loop over all moves */
+	list<Move> legalmoves;
+
+	for (it = moves.begin(); it != moves.end(); it++) {
+		/* check for validity */
+        row = it->getRow();
+	    col = it->getCol();
+
+		if (((row >= 0 && row < DEGREE) && (col >= 0 && col < DEGREE))
+			&& (this->board[row][col] == EMPTY)) {
+
+			move.setRow(row); move.setCol(col);
+#ifdef DEBUG
+			printf ("\n%s: (%d, %d)", __func__, move.getRow(), move.getCol());
+#endif
+			legalmoves.push_back(move);
+		}
+	}
+
+	return legalmoves;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 void TicTacToeBoard::Display() const {
-    cout << "+---+---+---+" << endl;
+    cout << "\n+---+---+---+" << endl;
     for (int r = 0; r < DEGREE; r++) {
         cout << "| ";
         for (int c = 0; c < DEGREE; c++) {

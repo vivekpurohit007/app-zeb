@@ -29,7 +29,9 @@ class Move {
 
         int getCol() const;
         void setCol(int col);
-        
+
+        void set(int row, int col);
+
         ~Move();
 };
 
