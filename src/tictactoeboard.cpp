@@ -39,20 +39,6 @@ PlayerSymbol TicTacToeBoard::getValueAt(int row, int col) const {
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void TicTacToeBoard::Display() const {
-    cout << "+---+---+---+" << endl;
-    for (int r = 0; r < DEGREE; r++) {
-        cout << "| ";
-        for (int c = 0; c < DEGREE; c++) {
-            char val = this->board[r][c];
-            cout << (val?(char)val:' ') <<" | ";
-        }
-        cout << endl;
-        cout << "+---+---+---+" << endl;
-    }
-}
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
 int TicTacToeBoard::MakeMove(Move *move, Player *player) {
     /* verify input */
     if (NULL == move || NULL == player) {
@@ -96,7 +82,12 @@ void TicTacToeBoard::ResetMove(Move *move) {
     int row = move->getRow();
     int col = move->getCol();
 
-    if ((row < 0 || row >= DEGREE) 
+    this->ResetMove(row, col);
+}
+
+void TicTacToeBoard::ResetMove(int row, int col) {
+
+        if ((row < 0 || row >= DEGREE)
         || (col < 0 || col >= DEGREE)) {
         cout << __func__ << ": Error: position (" 
              << row << "," << col << ") out of the arena" << endl;
@@ -108,83 +99,17 @@ void TicTacToeBoard::ResetMove(Move *move) {
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-#define CHECK_BOARD_STATE(cell, isempty, value, seqlen, state) { \
-    if (cell == EMPTY)                          \
-        isempty = true;                         \
-                                                \
-    if (value == cell) {                        \
-        seqlen++;                               \
-    } else {                                    \
-        value = cell;                           \
-        seqlen = 1;                             \
-    }                                           \
-    if (!isempty && seqlen == DEGREE) {         \
-        return (int)RESULT;                     \
-    } else {                                    \
-        if (isempty) {                          \
-            state = PLAY;                       \
-        }                                       \
-    }                                           \
-}     
-
-/**
- * Evaluates the board for DRAW/WIN/etc
- * 
- * Sequences which need to be checked for WINning sequence
- * 
- * +--+  +
- * |\ | /|
- * +-\-/ |
- * |     |
- * +---
- */
-int TicTacToeBoard::Evaluate() {
-    enum State gamestate = DRAW;
-    bool cellempty;
-    int SL;
-    int mark;
-
-    /* check rows */
+void TicTacToeBoard::Display() const {
+    cout << "+---+---+---+" << endl;
     for (int r = 0; r < DEGREE; r++) {
-        SL = 0;
-        mark = EMPTY;
-        cellempty = false;
-
+        cout << "| ";
         for (int c = 0; c < DEGREE; c++) {
-            CHECK_BOARD_STATE(this->board[r][c], cellempty, mark, SL, gamestate);
+            char val = this->board[r][c];
+            cout << (val?(char)val:' ') <<" | ";
         }
+        cout << endl;
+        cout << "+---+---+---+" << endl;
     }
-
-    /* check columns */
-    for (int c = 0; c < DEGREE; c ++) {
-        SL = 0;
-        mark = EMPTY;
-        cellempty = false;
-
-        for (int r = 0; r < DEGREE; r++) {
-            CHECK_BOARD_STATE(this->board[r][c], cellempty, mark, SL, gamestate);
-        }
-    }
-
-    /* upper-left to lower-right diagonal */
-    SL = 0;
-    mark = EMPTY;
-    cellempty = false;
-
-    for (int i = 0; i < DEGREE; i++) {
-        CHECK_BOARD_STATE(this->board[i][DEGREE-i-1], cellempty, mark, SL, gamestate);
-    }
-
-    /* upper-right to lower-left diagonal */
-    SL = 0;
-    mark = EMPTY;
-    cellempty = false;
-
-    for (int i = 0; i < DEGREE; i++) {
-        CHECK_BOARD_STATE(this->board[i][i], cellempty, mark, SL, gamestate);
-    }
-
-    return (int)gamestate;
 }
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 

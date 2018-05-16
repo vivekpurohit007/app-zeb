@@ -19,6 +19,16 @@
 class TicTacToeGame : virtual public Game {
     private:
 
+        /**
+         * @func issolvable
+         * @brief worker function that finds whether the board is solvable or not
+         * @param depth the depth to check for
+         * @praram turn current player
+         * @param start the starting move
+         * @return true if a result could be found, else false
+         */
+        bool issolvable(Arena *board, int depth, int turn, Move start);
+
     public:
         TicTacToeGame();
 
@@ -28,6 +38,8 @@ class TicTacToeGame : virtual public Game {
          * @func 
          */
         void Display() const;
+
+        int Evaluate();
 
         ~TicTacToeGame();
 };

@@ -22,14 +22,6 @@ class Player;
  */
 class Arena {
     public:
-
-        /**
-         * @func Evaluate
-         * @brief Evaluates the state of the arena, whether any player won or
-         * the game is going towards a draw, etc.
-         */
-        virtual int Evaluate() = 0;
-
         /**
          * @func Display
          * @brief Displays the arena

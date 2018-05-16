@@ -33,6 +33,17 @@ class Game {
         }
 
         void Play() {}
+
+        /**
+         * @func Evaluate
+         * @brief Evaluates the state of the arena
+         *
+         * Evaluates whether the game ended in a RESULT/DRAW or still some moves could be made.
+         */
+        virtual int Evaluate() {
+            return 1;
+        }
+
         void Display() const {};
         
         ~Game(){}

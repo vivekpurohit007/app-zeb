@@ -30,12 +30,11 @@ class TicTacToeBoard : virtual public Arena {
 
         PlayerSymbol getValueAt(int row, int col) const;
 
-        virtual void Display() const;
-        virtual int MakeMove(Move *move, Player *player);
-        virtual void ResetMove(Move *move);
+        int MakeMove(Move *move, Player *player);
+        void ResetMove(Move *move);
+        void ResetMove(int row, int col);
 
-        /* evaluates the board state */
-        virtual int Evaluate();
+        void Display() const;
 
         ~TicTacToeBoard();
 

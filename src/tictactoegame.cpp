@@ -82,7 +82,7 @@ again:
         this->Display();
 
         /* evaluate the board for result */
-        gamestate = (enum State) this->arena->Evaluate();
+        gamestate = (enum State) this->Evaluate();
         cout << "State = " << gamestate << endl;
 
         if (RESULT == gamestate) {
@@ -96,6 +96,88 @@ again:
     }
 }
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+#define CHECK_BOARD_STATE(cell, isempty, value, seqlen, state) { \
+    if (cell == EMPTY)                          \
+        isempty = true;                         \
+                                                \
+    if (value == cell) {                        \
+        seqlen++;                               \
+    } else {                                    \
+        value = cell;                           \
+        seqlen = 1;                             \
+    }                                           \
+    if (!isempty && seqlen == DEGREE) {         \
+        return (int)RESULT;                     \
+    } else {                                    \
+        if (isempty) {                          \
+            state = PLAY;                       \
+        }                                       \
+    }                                           \
+}
+
+/**
+ * Evaluates the board for DRAW/WIN/etc
+ *
+ * Sequences which need to be checked for WINning sequence
+ *
+ * +--+  +
+ * |\ | /|
+ * +-\-/ |
+ * |     |
+ * +---
+ */
+int TicTacToeGame::Evaluate() {
+    enum State gamestate = DRAW;
+    bool cellempty;
+    int SL;
+    int mark;
+    TicTacToeBoard *board = dynamic_cast<TicTacToeBoard*>(this->arena);
+
+    /* check rows */
+    for (int r = 0; r < DEGREE; r++) {
+        SL = 0;
+        mark = EMPTY;
+        cellempty = false;
+
+        for (int c = 0; c < DEGREE; c++) {
+            CHECK_BOARD_STATE(board->getValueAt(r,c), cellempty, mark, SL, gamestate);
+        }
+    }
+
+    /* check columns */
+    for (int c = 0; c < DEGREE; c ++) {
+        SL = 0;
+        mark = EMPTY;
+        cellempty = false;
+
+        for (int r = 0; r < DEGREE; r++) {
+            CHECK_BOARD_STATE(board->getValueAt(r,c), cellempty, mark, SL, gamestate);
+        }
+    }
+
+    /* upper-left to lower-right diagonal */
+    SL = 0;
+    mark = EMPTY;
+    cellempty = false;
+
+    for (int i = 0; i < DEGREE; i++) {
+        CHECK_BOARD_STATE(board->getValueAt(i,DEGREE-i-1), cellempty, mark, SL, gamestate);
+    }
+
+    /* upper-right to lower-left diagonal */
+    SL = 0;
+    mark = EMPTY;
+    cellempty = false;
+
+    for (int i = 0; i < DEGREE; i++) {
+        CHECK_BOARD_STATE(board->getValueAt(i, i), cellempty, mark, SL, gamestate);
+    }
+
+    return (int)gamestate;
+}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
 
 TicTacToeGame::~TicTacToeGame() {
     if (this->players) {
